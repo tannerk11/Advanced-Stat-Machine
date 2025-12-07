@@ -67,10 +67,23 @@ async function getGameStats(url) {
     visitor3PMAFGP: textOrEmpty(q('.visitor .totals td:nth-of-type(3)')),
 
     homeOREB: textOrEmpty(q('.home .totals td:nth-last-of-type(9)')),
-  visitorOREB: textOrEmpty(q('.visitor .totals td:nth-last-of-type(9)')),
+    visitorOREB: textOrEmpty(q('.visitor .totals td:nth-last-of-type(9)')),
+
+    homeAssists: textOrEmpty(q('.home .totals td:nth-last-of-type(7)')),
+    visitorAssists: textOrEmpty(q('.visitor .totals td:nth-last-of-type(7)')),
+
+    homeSteals: textOrEmpty(q('.home .totals td:nth-last-of-type(6)')),
+    visitorSteals: textOrEmpty(q('.visitor .totals td:nth-last-of-type(6)')),
+
+    homeBlocks: textOrEmpty(q('.home .totals td:nth-last-of-type(5)')),
+    visitorBlocks: textOrEmpty(q('.visitor .totals td:nth-last-of-type(5)')),
+    
+    homeFouls: textOrEmpty(q('.home .totals td:nth-last-of-type(4)')),
+    visitorFouls: textOrEmpty(q('.visitor .totals td:nth-last-of-type(4)')),
+
   // Defensive rebounds (assumed to be next to offensive rebounds in totals)
-  homeDREB: textOrEmpty(q('.home .totals td:nth-last-of-type(8)')),
-  visitorDREB: textOrEmpty(q('.visitor .totals td:nth-last-of-type(8)')),
+    homeDREB: textOrEmpty(q('.home .totals td:nth-last-of-type(8)')),
+    visitorDREB: textOrEmpty(q('.visitor .totals td:nth-last-of-type(8)')),
 
     homeTurnovers3PP: textOrEmpty(q('.home .totals td:nth-last-of-type(3)')), // "12 30.0%"
     visitorTurnovers3PP: textOrEmpty(q('.visitor .totals td:nth-last-of-type(3)')),
@@ -97,8 +110,24 @@ async function getGameStats(url) {
   const homeDREB = toNumber(raw.homeDREB);
   const visitorDREB = toNumber(raw.visitorDREB);
 
+  // Parse counting stats (assists, steals, blocks, fouls) from raw strings
+  const homeAssists = toNumber(raw.homeAssists);
+  const visitorAssists = toNumber(raw.visitorAssists);
+
+  const homeSteals = toNumber(raw.homeSteals);
+  const visitorSteals = toNumber(raw.visitorSteals);
+
+  const homeBlocks = toNumber(raw.homeBlocks);
+  const visitorBlocks = toNumber(raw.visitorBlocks);
+
+  const homeFouls = toNumber(raw.homeFouls);
+  const visitorFouls = toNumber(raw.visitorFouls);
+
   const { turnovers: homeTurnovers } = parseTurnoversPlusPercent(raw.homeTurnovers3PP);
   const { turnovers: visitorTurnovers } = parseTurnoversPlusPercent(raw.visitorTurnovers3PP);
+
+  const homeRebounds = homeOREB + homeDREB;
+  const visitorRebounds = visitorOREB + visitorDREB;
 
   // Advanced stats
   // Possessions (Dean Oliver estimate): FGA - OREB + TOV + 0.475 * FTA
@@ -174,6 +203,7 @@ async function getGameStats(url) {
       fta: homefta,
       oreb: homeOREB,
       defensiveRebounds: homeDREB,
+      totalRebounds: homeRebounds,
       turnovers: homeTurnovers,
       threePointPercent: home3PPct || homeFTPct || null,
       possessions: homePossessions,
@@ -195,6 +225,10 @@ async function getGameStats(url) {
       threePointPercentRaw: home3PPct || null,
       efg: homeEfg != null ? Number(homeEfg.toFixed(2)) : null,
       efgPercent: homeEfgStr,
+      assists: homeAssists != null ? Number(homeAssists) : null,
+      steals: homeSteals != null ? Number(homeSteals) : null,
+      blocks: homeBlocks != null ? Number(homeBlocks) : null,
+      personalFouls: homeFouls != null ? Number(homeFouls) : null,
     },
     visitor: {
       pts: visitorPoints,
@@ -204,6 +238,7 @@ async function getGameStats(url) {
       fta: visitorfta,
       oreb: visitorOREB,
       defensiveRebounds: visitorDREB,
+      totalRebounds: visitorRebounds,
       turnovers: visitorTurnovers,
       threePointPercent: visitor3PPct || visitorFTPct || null,
       possessions: visitorPossessions,
@@ -216,8 +251,8 @@ async function getGameStats(url) {
       fgPercentStr: visitorFgPct != null ? visitorFgPctStr : '—',
       fgEfgDiff: visitorFgEfgDiff != null ? Number(visitorFgEfgDiff.toFixed(2)) : null,
       fgEfgDiffStr: visitorFgEfgDiff != null ? visitorFgEfgDiffStr : '—',
-  ftRate: visitorFtRateNum,
-  ftRateStr: visitorFtRateStr,
+      ftRate: visitorFtRateNum,
+      ftRateStr: visitorFtRateStr,
       shotVolume: visitorShotVolumeNum,
       shotVolumeStr: visitorShotVolumeStr,
       threePointMade: visitor3PM,
@@ -225,6 +260,10 @@ async function getGameStats(url) {
       threePointPercentRaw: visitor3PPct || null,
       efg: visitorEfg != null ? Number(visitorEfg.toFixed(2)) : null,
       efgPercent: visitorEfgStr,
+      assists: visitorAssists != null ? Number(visitorAssists) : null,
+      steals: visitorSteals != null ? Number(visitorSteals) : null,
+      blocks: visitorBlocks != null ? Number(visitorBlocks) : null,
+      personalFouls: visitorFouls != null ? Number(visitorFouls) : null,
     },
   };
 }
