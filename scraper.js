@@ -126,8 +126,10 @@ async function getGameStats(url) {
   const homeFtRateNum = homeFtRate != null ? Number(homeFtRate.toFixed(3)) : null;
   const visitorFtRateNum = visitorFtRate != null ? Number(visitorFtRate.toFixed(3)) : null;
 
-  const homeFtRateStr = homeFtRate != null ? `${homeFtRate.toFixed(3)}` : '—';
-  const visitorFtRateStr = visitorFtRate != null ? `${visitorFtRate.toFixed(3)}` : '—';
+  // Expose FT rate both as a numeric fraction (ftRate) and a human-friendly percent string (ftRateStr)
+  // e.g. ftRate: 0.39, ftRateStr: "39.0%"
+  const homeFtRateStr = homeFtRate != null ? `${(homeFtRate * 100).toFixed(1)}%` : '—';
+  const visitorFtRateStr = visitorFtRate != null ? `${(visitorFtRate * 100).toFixed(1)}%` : '—';
 
   // Field goal % (as percent) and difference between EFG and FG%
   const homeFgPct = homefga ? (homefgm / homefga) * 100 : null;
@@ -214,8 +216,8 @@ async function getGameStats(url) {
       fgPercentStr: visitorFgPct != null ? visitorFgPctStr : '—',
       fgEfgDiff: visitorFgEfgDiff != null ? Number(visitorFgEfgDiff.toFixed(2)) : null,
       fgEfgDiffStr: visitorFgEfgDiff != null ? visitorFgEfgDiffStr : '—',
-      ftRate: visitorFtRateNum,
-      tRateStr: visitorFtRateStr,
+  ftRate: visitorFtRateNum,
+  ftRateStr: visitorFtRateStr,
       shotVolume: visitorShotVolumeNum,
       shotVolumeStr: visitorShotVolumeStr,
       threePointMade: visitor3PM,
