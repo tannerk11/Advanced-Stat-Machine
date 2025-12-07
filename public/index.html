@@ -26,11 +26,18 @@
     const btn = document.getElementById('fetchBtn');
     const results = document.getElementById('results');
 
-    // Helper to safely format numbers
-    function fmt(val, digits = 2) {
+    // Helper to safely format numbers (default: 1 decimal)
+    function fmt(val, digits = 1) {
       const n = Number(val);
       if (!Number.isFinite(n)) return '—';
       return n.toFixed(digits);
+    }
+
+    // Helper for integer display (counts)
+    function intFmt(val) {
+      const n = Number(val);
+      if (!Number.isFinite(n)) return '—';
+      return String(Math.round(n));
     }
 
     btn.addEventListener('click', async () => {
@@ -68,70 +75,18 @@
           data.visitor.ppp ??
           null;
 
-        console.log('home PPP (frontend):', rawHomePPP);
-        console.log('visitor PPP (frontend):', rawVisitorPPP);
-
+        // Field Goal % (two decimals)
         const homeFGPct =
           data.home.fgm != null && data.home.fga
-            ? fmt((data.home.fgm / data.home.fga) * 100, 2) + '%'
+            ? fmt((data.home.fgm / data.home.fga) * 100, 1) + '%'
             : '—';
 
         const visitorFGPct =
           data.visitor.fgm != null && data.visitor.fga
-            ? fmt((data.visitor.fgm / data.visitor.fga) * 100, 2) + '%'
+            ? fmt((data.visitor.fgm / data.visitor.fga) * 100, 1) + '%'
             : '—';
 
-        // EFG % (prefer string field, fall back to numeric)
-        const homeEfgPct =
-          data.home.efgPercent ?? (data.home.efg != null ? fmt(data.home.efg, 2) + '%' : '—');
-
-        const visitorEfgPct =
-          data.visitor.efgPercent ?? (data.visitor.efg != null ? fmt(data.visitor.efg, 2) + '%' : '—');
-
-        // (Removed redundant FG% display - using Field Goal % above with two decimals)
-
-        // FG vs EFG difference (prefer string field, fall back to numeric difference)
-        const homeFgEfgDiffDisplay =
-          data.home.fgEfgDiffStr ?? (data.home.fgEfgDiff != null ? fmt(data.home.fgEfgDiff, 2) + '%' : '—');
-
-        const visitorFgEfgDiffDisplay =
-          data.visitor.fgEfgDiffStr ?? (data.visitor.fgEfgDiff != null ? fmt(data.visitor.fgEfgDiff, 2) + '%' : '—');
-
-        // Free Throw Rate display (FTA / FGA). prefer server string, else numeric
-        const homeFtRateDisplay =
-          data.home.ftRateStr ?? (data.home.ftRate != null ? fmt(data.home.ftRate, 3) : '—');
-
-        const visitorFtRateDisplay =
-          data.visitor.ftRateStr ?? (data.visitor.ftRate != null ? fmt(data.visitor.ftRate, 3) : '—');
-
-        // Turnover % (prefer string field, fall back to numeric)
-        const homeTurnoverPct =
-            data.home.turnoverPercentStr ?? (
-              data.home.turnoverPercent != null ? fmt(data.home.turnoverPercent, 2) + '%' : '—'
-            );
-
-        const visitorTurnoverPct =
-            data.visitor.turnoverPercentStr ?? (
-              data.visitor.turnoverPercent != null ? fmt(data.visitor.turnoverPercent, 2) + '%' : '—'
-            );
-
-        const homePPPDisplay =
-          rawHomePPP != null ? fmt(rawHomePPP, 3) : '—';
-
-        const visitorPPPDisplay =
-          rawVisitorPPP != null ? fmt(rawVisitorPPP, 3) : '—';
-
-        const homePossDisplay = fmt(data.home.possessions, 2);
-        const visitorPossDisplay = fmt(data.visitor.possessions, 2);
-
-        // Shot Volume display (prefer server string, else numeric): (FGA + 0.475*FTA) / Possessions
-        const homeShotVolumeDisplay =
-          data.home.shotVolumeStr ?? (data.home.shotVolume != null ? fmt(data.home.shotVolume, 3) : '—');
-
-        const visitorShotVolumeDisplay =
-          data.visitor.shotVolumeStr ?? (data.visitor.shotVolume != null ? fmt(data.visitor.shotVolume, 3) : '—');
-
-        // 3P made-attempts display (prefer explicit fields, fall back to percent)
+        // 3P made/att display
         const home3PMLine =
           data.home.threePointMade != null && data.home.threePointAttempted != null
             ? `${data.home.threePointMade}-${data.home.threePointAttempted}`
@@ -142,24 +97,129 @@
             ? `${data.visitor.threePointMade}-${data.visitor.threePointAttempted}`
             : (data.visitor.threePointPercent ?? '—');
 
-        // Defensive rebounds display
-        const homeDrebDisplay =
-          data.home.defensiveRebounds != null ? `${data.home.defensiveRebounds}` : '—';
+        // EFG % (prefer string field, fall back to numeric)
+        const homeEfgPct =
+          data.home.efgPercent ?? (data.home.efg != null ? fmt(data.home.efg, 1) + '%' : '—');
 
-        const visitorDrebDisplay =
-          data.visitor.defensiveRebounds != null ? `${data.visitor.defensiveRebounds}` : '—';
+        const visitorEfgPct =
+          data.visitor.efgPercent ?? (data.visitor.efg != null ? fmt(data.visitor.efg, 1) + '%' : '—');
 
-        // Offensive Rebound % display: prefer computing from displayed constants (oreb + opponent DREB),
-        // otherwise fall back to server-provided fields.
+        // True Shooting % (prefer percent string, else numeric ts -> format)
+        const homeTsDisplay =
+          data.home.tsPercent ?? (data.home.ts != null ? fmt(data.home.ts, 1) + '%' : '—');
+
+        const visitorTsDisplay =
+          data.visitor.tsPercent ?? (data.visitor.ts != null ? fmt(data.visitor.ts, 1) + '%' : '—');
+
+        // Free Throw values and FT %
+        const homeFtLine = `${data.home.ftm ?? '—'}-${data.home.fta ?? '—'}`;
+        const visitorFtLine = `${data.visitor.ftm ?? '—'}-${data.visitor.fta ?? '—'}`;
+
+        const homeFtPct =
+          data.home.ftm != null && data.home.fta
+            ? fmt((data.home.ftm / data.home.fta) * 100, 1) + '%'
+            : '—';
+
+        const visitorFtPct =
+          data.visitor.ftm != null && data.visitor.fta
+            ? fmt((data.visitor.ftm / data.visitor.fta) * 100, 1) + '%'
+            : '—';
+
+        // FT Rate display (FTA / FGA) - robust parsing: accept ftRateStr (percent or fraction) or numeric ftRate
+        function formatRateField(strField, numField) {
+          const raw = strField ?? numField;
+          if (raw == null) return '—';
+          if (typeof raw === 'string') {
+            const s = raw.trim();
+            if (s.endsWith('%')) return s;
+            const n = Number(s.replace('%',''));
+            if (Number.isFinite(n)) {
+              // if the string looks like a fraction (e.g. "0.12") treat as fraction -> percent
+              if (n <= 1) return fmt(n * 100, 1) + '%';
+              // otherwise assume it's already a percent number (e.g. "12")
+              return fmt(n, 1) + '%';
+            }
+            return s;
+          }
+          const num = Number(numField);
+          if (Number.isFinite(num)) return fmt(num * 100, 1) + '%';
+          return '—';
+        }
+
+        const homeFtRateDisplay = formatRateField(data.home.ftRateStr, data.home.ftRate);
+        const visitorFtRateDisplay = formatRateField(data.visitor.ftRateStr, data.visitor.ftRate);
+
+        // Turnover %
+        const homeTurnoverPct =
+          data.home.turnoverPercentStr ?? (data.home.turnoverPercent != null ? fmt(data.home.turnoverPercent, 1) + '%' : '—');
+
+        const visitorTurnoverPct =
+          data.visitor.turnoverPercentStr ?? (data.visitor.turnoverPercent != null ? fmt(data.visitor.turnoverPercent, 1) + '%' : '—');
+
+        // Possessions
+        const homePossDisplay = fmt(data.home.possessions, 1);
+        const visitorPossDisplay = fmt(data.visitor.possessions, 1);
+
+        // Shot Volume
+        const homeShotVolumeDisplay =
+          data.home.shotVolumeStr ?? (data.home.shotVolume != null ? fmt(data.home.shotVolume, 1) : '—');
+
+        const visitorShotVolumeDisplay =
+          data.visitor.shotVolumeStr ?? (data.visitor.shotVolume != null ? fmt(data.visitor.shotVolume, 1) : '—');
+
+        // Defensive rebounds
+        const homeDrebDisplay = data.home.defensiveRebounds != null ? `${data.home.defensiveRebounds}` : '—';
+        const visitorDrebDisplay = data.visitor.defensiveRebounds != null ? `${data.visitor.defensiveRebounds}` : '—';
+
+        // Total rebounds (prefer explicit field, else sum offensive + defensive)
+        const homeTotalReb =
+          data.home.totalRebounds ?? data.home.totReb ?? (
+            (data.home.oreb != null && data.home.defensiveRebounds != null) ? (Number(data.home.oreb) + Number(data.home.defensiveRebounds)) : null
+          );
+
+        const visitorTotalReb =
+          data.visitor.totalRebounds ?? data.visitor.totReb ?? (
+            (data.visitor.oreb != null && data.visitor.defensiveRebounds != null) ? (Number(data.visitor.oreb) + Number(data.visitor.defensiveRebounds)) : null
+          );
+
+        const homeTotalRebDisplay = homeTotalReb != null ? intFmt(homeTotalReb) : '—';
+        const visitorTotalRebDisplay = visitorTotalReb != null ? intFmt(visitorTotalReb) : '—';
+
+        // Other raw counting stats (assists, steals, blocks, personal fouls) — accept multiple possible keys
+        const homeAssists = data.home.assists ?? data.home.ast ?? data.home.AST ?? null;
+        const visitorAssists = data.visitor.assists ?? data.visitor.ast ?? data.visitor.AST ?? null;
+
+        const homeSteals = data.home.steals ?? data.home.stl ?? null;
+        const visitorSteals = data.visitor.steals ?? data.visitor.stl ?? null;
+
+        const homeBlocks = data.home.blocks ?? data.home.blk ?? null;
+        const visitorBlocks = data.visitor.blocks ?? data.visitor.blk ?? null;
+
+        const homeFouls = data.home.pf ?? data.home.personalFouls ?? data.home.fouls ?? null;
+        const visitorFouls = data.visitor.pf ?? data.visitor.personalFouls ?? data.visitor.fouls ?? null;
+
+        const homeAssistsDisplay = homeAssists != null ? intFmt(homeAssists) : '—';
+        const visitorAssistsDisplay = visitorAssists != null ? intFmt(visitorAssists) : '—';
+
+        const homeStealsDisplay = homeSteals != null ? intFmt(homeSteals) : '—';
+        const visitorStealsDisplay = visitorSteals != null ? intFmt(visitorSteals) : '—';
+
+        const homeBlocksDisplay = homeBlocks != null ? intFmt(homeBlocks) : '—';
+        const visitorBlocksDisplay = visitorBlocks != null ? intFmt(visitorBlocks) : '—';
+
+        const homeFoulsDisplay = homeFouls != null ? intFmt(homeFouls) : '—';
+        const visitorFoulsDisplay = visitorFouls != null ? intFmt(visitorFouls) : '—';
+
+        // Offensive Rebound % (compute from oreb + opp DREB if possible)
         let homeOrPctDisplay = '—';
         if (data.home.oreb != null && data.visitor.defensiveRebounds != null) {
           const oreb = Number(data.home.oreb);
           const oppD = Number(data.visitor.defensiveRebounds);
           if (Number.isFinite(oreb) && Number.isFinite(oppD) && (oreb + oppD) > 0) {
-            homeOrPctDisplay = fmt((oreb / (oreb + oppD)) * 100, 2) + '%';
+            homeOrPctDisplay = fmt((oreb / (oreb + oppD)) * 100, 1) + '%';
           }
         } else {
-          homeOrPctDisplay = data.home.offensiveReboundPercentStr ?? (data.home.offensiveReboundPercent != null ? fmt(data.home.offensiveReboundPercent, 2) + '%' : '—');
+          homeOrPctDisplay = data.home.offensiveReboundPercentStr ?? (data.home.offensiveReboundPercent != null ? fmt(data.home.offensiveReboundPercent, 1) + '%' : '—');
         }
 
         let visitorOrPctDisplay = '—';
@@ -167,12 +227,16 @@
           const oreb = Number(data.visitor.oreb);
           const oppD = Number(data.home.defensiveRebounds);
           if (Number.isFinite(oreb) && Number.isFinite(oppD) && (oreb + oppD) > 0) {
-            visitorOrPctDisplay = fmt((oreb / (oreb + oppD)) * 100, 2) + '%';
+            visitorOrPctDisplay = fmt((oreb / (oreb + oppD)) * 100, 1) + '%';
           }
         } else {
-          visitorOrPctDisplay = data.visitor.offensiveReboundPercentStr ?? (data.visitor.offensiveReboundPercent != null ? fmt(data.visitor.offensiveReboundPercent, 2) + '%' : '—');
+          visitorOrPctDisplay = data.visitor.offensiveReboundPercentStr ?? (data.visitor.offensiveReboundPercent != null ? fmt(data.visitor.offensiveReboundPercent, 1) + '%' : '—');
         }
 
+  const homePPPDisplay = rawHomePPP != null ? fmt(rawHomePPP, 1) : '—';
+  const visitorPPPDisplay = rawVisitorPPP != null ? fmt(rawVisitorPPP, 1) : '—';
+
+        // Build table (visitor left, home right)
         const tableHTML = `
           <div class="stats-table-wrapper">
             <table class="stats-table">
@@ -197,45 +261,49 @@
                 </tr>
 
                 <tr>
-                  <td class="label">Field Goal %</td>
+                  <td class="label">FG %</td>
                   <td class="value">${visitorFGPct}</td>
                   <td class="value">${homeFGPct}</td>
                 </tr>
 
                 <tr>
-                  <td class="label">EFG %</td>
-                  <td class="value">${visitorEfgPct}</td>
-                  <td class="value">${homeEfgPct}</td>
-                </tr>
-
-                <!-- Removed duplicate FG% row (Field Goal % above displays FG% with two decimals) -->
-
-                <tr>
-                  <td class="label">FG — EFG</td>
-                  <td class="value">${visitorFgEfgDiffDisplay}</td>
-                  <td class="value">${homeFgEfgDiffDisplay}</td>
-                </tr>
-
-                <tr>
-                  <td class="label">3 Point %</td>
-                  <td class="value">${data.visitor.threePointPercent}</td>
-                  <td class="value">${data.home.threePointPercent}</td>
-                </tr>
-
-                <tr>
-                  <td class="label">3P Made-Att</td>
+                  <td class="label">Three Point</td>
                   <td class="value">${visitor3PMLine}</td>
                   <td class="value">${home3PMLine}</td>
                 </tr>
 
                 <tr>
-                  <td class="label">Free Throw</td>
-                  <td class="value">${data.visitor.ftm}-${data.visitor.fta}</td>
-                  <td class="value">${data.home.ftm}-${data.home.fta}</td>
+                  <td class="label">3PT %</td>
+                  <td class="value">${data.visitor.threePointPercent}</td>
+                  <td class="value">${data.home.threePointPercent}</td>
                 </tr>
 
                 <tr>
-                  <td class="label">FT Rate (FTA / FGA)</td>
+                  <td class="label">Free Throw</td>
+                  <td class="value">${visitorFtLine}</td>
+                  <td class="value">${homeFtLine}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">FT %</td>
+                  <td class="value">${visitorFtPct}</td>
+                  <td class="value">${homeFtPct}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Effective FG %</td>
+                  <td class="value">${visitorEfgPct}</td>
+                  <td class="value">${homeEfgPct}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">True Shooting %</td>
+                  <td class="value">${visitorTsDisplay}</td>
+                  <td class="value">${homeTsDisplay}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">FT Rate</td>
                   <td class="value">${visitorFtRateDisplay}</td>
                   <td class="value">${homeFtRateDisplay}</td>
                 </tr>
@@ -250,6 +318,36 @@
                   <td class="label">Def Reb</td>
                   <td class="value">${visitorDrebDisplay}</td>
                   <td class="value">${homeDrebDisplay}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Total Reb</td>
+                  <td class="value">${data.visitor.totalRebounds}</td>
+                  <td class="value">${data.home.totalRebounds}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Assists</td>
+                  <td class="value">${data.visitor.assists}</td>
+                  <td class="value">${data.home.assists}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Steals</td>
+                  <td class="value">${data.visitor.steals}</td>
+                  <td class="value">${data.home.steals}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Blocks</td>
+                  <td class="value">${data.visitor.blocks}</td>
+                  <td class="value">${data.home.blocks}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Personal Fouls</td>
+                  <td class="value">${data.visitor.personalFouls}</td>
+                  <td class="value">${data.home.personalFouls}</td>
                 </tr>
 
                 <tr>
