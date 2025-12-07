@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MitchPom NAIA Box Score Scraper</title>
+  <!-- Google Font: Signika -->
+  <link href="https://fonts.googleapis.com/css2?family=Signika:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h1>MitchPom NAIA Box Score Scraper</h1>
+
+  <input 
+    id="urlInput" 
+    type="text" 
+    placeholder="Paste box score URL here"
+  />
+
+  <button id="fetchBtn">Get Stats</button>
+
+  <h2>Results</h2>
+  <div id="results">Waiting for input...</div>
+
+  <script>
+    const input = document.getElementById('urlInput');
+    const btn = document.getElementById('fetchBtn');
+    const results = document.getElementById('results');
+
+    // Helper to safely format numbers
+    function fmt(val, digits = 2) {
+      const n = Number(val);
+      if (!Number.isFinite(n)) return '—';
+      return n.toFixed(digits);
+    }
+
+    btn.addEventListener('click', async () => {
+      const url = input.value.trim();
+      if (!url) {
+        results.textContent = 'Please enter a URL.';
+        return;
+      }
+
+      results.textContent = 'Loading...';
+
+      try {
+        const res = await fetch(`/api/stats?url=${encodeURIComponent(url)}`);
+        const data = await res.json();
+
+        console.log('FULL API DATA:', data);
+
+        // Guard: make sure the shape is what we expect
+        if (!data || !data.home || !data.visitor) {
+          console.error('Unexpected API shape:', data);
+          results.textContent = 'API did not return the expected data structure.';
+          return;
+        }
+
+        // Try multiple possible PPP property names to be robust
+        const rawHomePPP =
+          data.home.pointsPerPossession ??
+          data.home.pointsperpossession ??
+          data.home.ppp ??
+          null;
+
+        const rawVisitorPPP =
+          data.visitor.pointsPerPossession ??
+          data.visitor.pointsperpossession ??
+          data.visitor.ppp ??
+          null;
+
+        console.log('home PPP (frontend):', rawHomePPP);
+        console.log('visitor PPP (frontend):', rawVisitorPPP);
+
+        const homeFGPct =
+          data.home.fgm != null && data.home.fga
+            ? fmt((data.home.fgm / data.home.fga) * 100, 1) + '%'
+            : '—';
+
+        const visitorFGPct =
+          data.visitor.fgm != null && data.visitor.fga
+            ? fmt((data.visitor.fgm / data.visitor.fga) * 100, 1) + '%'
+            : '—';
+
+        // EFG % (prefer string field, fall back to numeric)
+        const homeEfgPct =
+          data.home.efgPercent ?? (data.home.efg != null ? fmt(data.home.efg, 2) + '%' : '—');
+
+        const visitorEfgPct =
+          data.visitor.efgPercent ?? (data.visitor.efg != null ? fmt(data.visitor.efg, 2) + '%' : '—');
+
+        // FG% display (prefer string field exposed by API, else compute)
+        const homeFgPctDisplay =
+          data.home.fgPercentStr ?? (data.home.fgPercent != null ? fmt(data.home.fgPercent, 2) + '%' : '—');
+
+        const visitorFgPctDisplay =
+          data.visitor.fgPercentStr ?? (data.visitor.fgPercent != null ? fmt(data.visitor.fgPercent, 2) + '%' : '—');
+
+        // FG vs EFG difference (prefer string field, fall back to numeric difference)
+        const homeFgEfgDiffDisplay =
+          data.home.fgEfgDiffStr ?? (data.home.fgEfgDiff != null ? fmt(data.home.fgEfgDiff, 2) + '%' : '—');
+
+        const visitorFgEfgDiffDisplay =
+          data.visitor.fgEfgDiffStr ?? (data.visitor.fgEfgDiff != null ? fmt(data.visitor.fgEfgDiff, 2) + '%' : '—');
+
+        // Free Throw Rate display (FTA / FGA). prefer server string, else numeric
+        const homeFtRateDisplay =
+          data.home.ftRateStr ?? (data.home.ftRate != null ? fmt(data.home.ftRate, 3) : '—');
+
+        const visitorFtRateDisplay =
+          data.visitor.ftRateStr ?? (data.visitor.ftRate != null ? fmt(data.visitor.ftRate, 3) : '—');
+
+        // Turnover % (prefer string field, fall back to numeric)
+        const homeTurnoverPct =
+            data.home.turnoverPercentStr ?? (
+              data.home.turnoverPercent != null ? fmt(data.home.turnoverPercent, 2) + '%' : '—'
+            );
+
+        const visitorTurnoverPct =
+            data.visitor.turnoverPercentStr ?? (
+              data.visitor.turnoverPercent != null ? fmt(data.visitor.turnoverPercent, 2) + '%' : '—'
+            );
+
+        const homePPPDisplay =
+          rawHomePPP != null ? fmt(rawHomePPP, 3) : '—';
+
+        const visitorPPPDisplay =
+          rawVisitorPPP != null ? fmt(rawVisitorPPP, 3) : '—';
+
+        const homePossDisplay = fmt(data.home.possessions, 2);
+        const visitorPossDisplay = fmt(data.visitor.possessions, 2);
+
+        // Shot Volume display (prefer server string, else numeric): (FGA + 0.475*FTA) / Possessions
+        const homeShotVolumeDisplay =
+          data.home.shotVolumeStr ?? (data.home.shotVolume != null ? fmt(data.home.shotVolume, 3) : '—');
+
+        const visitorShotVolumeDisplay =
+          data.visitor.shotVolumeStr ?? (data.visitor.shotVolume != null ? fmt(data.visitor.shotVolume, 3) : '—');
+
+        // 3P made-attempts display (prefer explicit fields, fall back to percent)
+        const home3PMLine =
+          data.home.threePointMade != null && data.home.threePointAttempted != null
+            ? `${data.home.threePointMade}-${data.home.threePointAttempted}`
+            : (data.home.threePointPercent ?? '—');
+
+        const visitor3PMLine =
+          data.visitor.threePointMade != null && data.visitor.threePointAttempted != null
+            ? `${data.visitor.threePointMade}-${data.visitor.threePointAttempted}`
+            : (data.visitor.threePointPercent ?? '—');
+
+        // Defensive rebounds display
+        const homeDrebDisplay =
+          data.home.defensiveRebounds != null ? `${data.home.defensiveRebounds}` : '—';
+
+        const visitorDrebDisplay =
+          data.visitor.defensiveRebounds != null ? `${data.visitor.defensiveRebounds}` : '—';
+
+        // Offensive Rebound % display: prefer computing from displayed constants (oreb + opponent DREB),
+        // otherwise fall back to server-provided fields.
+        let homeOrPctDisplay = '—';
+        if (data.home.oreb != null && data.visitor.defensiveRebounds != null) {
+          const oreb = Number(data.home.oreb);
+          const oppD = Number(data.visitor.defensiveRebounds);
+          if (Number.isFinite(oreb) && Number.isFinite(oppD) && (oreb + oppD) > 0) {
+            homeOrPctDisplay = fmt((oreb / (oreb + oppD)) * 100, 2) + '%';
+          }
+        } else {
+          homeOrPctDisplay = data.home.offensiveReboundPercentStr ?? (data.home.offensiveReboundPercent != null ? fmt(data.home.offensiveReboundPercent, 2) + '%' : '—');
+        }
+
+        let visitorOrPctDisplay = '—';
+        if (data.visitor.oreb != null && data.home.defensiveRebounds != null) {
+          const oreb = Number(data.visitor.oreb);
+          const oppD = Number(data.home.defensiveRebounds);
+          if (Number.isFinite(oreb) && Number.isFinite(oppD) && (oreb + oppD) > 0) {
+            visitorOrPctDisplay = fmt((oreb / (oreb + oppD)) * 100, 2) + '%';
+          }
+        } else {
+          visitorOrPctDisplay = data.visitor.offensiveReboundPercentStr ?? (data.visitor.offensiveReboundPercent != null ? fmt(data.visitor.offensiveReboundPercent, 2) + '%' : '—');
+        }
+
+        const tableHTML = `
+          <div class="stats-table-wrapper">
+            <table class="stats-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>${data.homeTeam}</th>
+                  <th>${data.visitorTeam}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="label">Points</td>
+                  <td class="value">${data.home.pts}</td>
+                  <td class="value">${data.visitor.pts}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Field Goal</td>
+                  <td class="value">${data.home.fgm}-${data.home.fga}</td>
+                  <td class="value">${data.visitor.fgm}-${data.visitor.fga}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Field Goal %</td>
+                  <td class="value">${homeFGPct}</td>
+                  <td class="value">${visitorFGPct}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">EFG %</td>
+                  <td class="value">${homeEfgPct}</td>
+                  <td class="value">${visitorEfgPct}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">FG %</td>
+                  <td class="value">${homeFgPctDisplay}</td>
+                  <td class="value">${visitorFgPctDisplay}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">FG — EFG</td>
+                  <td class="value">${homeFgEfgDiffDisplay}</td>
+                  <td class="value">${visitorFgEfgDiffDisplay}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">3 Point %</td>
+                  <td class="value">${data.home.threePointPercent}</td>
+                  <td class="value">${data.visitor.threePointPercent}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">3P Made-Att</td>
+                  <td class="value">${home3PMLine}</td>
+                  <td class="value">${visitor3PMLine}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Free Throw</td>
+                  <td class="value">${data.home.ftm}-${data.home.fta}</td>
+                  <td class="value">${data.visitor.ftm}-${data.visitor.fta}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">FT Rate (FTA / FGA)</td>
+                  <td class="value">${homeFtRateDisplay}</td>
+                  <td class="value">${visitorFtRateDisplay}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Off Reb</td>
+                  <td class="value">${data.home.oreb}</td>
+                  <td class="value">${data.visitor.oreb}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Def Reb</td>
+                  <td class="value">${homeDrebDisplay}</td>
+                  <td class="value">${visitorDrebDisplay}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Offensive Rebound %</td>
+                  <td class="value">${homeOrPctDisplay}</td>
+                  <td class="value">${visitorOrPctDisplay}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Turnovers</td>
+                  <td class="value">${data.home.turnovers}</td>
+                  <td class="value">${data.visitor.turnovers}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Turnover %</td>
+                  <td class="value">${homeTurnoverPct}</td>
+                  <td class="value">${visitorTurnoverPct}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Possessions</td>
+                  <td class="value">${homePossDisplay}</td>
+                  <td class="value">${visitorPossDisplay}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Shot Volume (SV)</td>
+                  <td class="value">${homeShotVolumeDisplay}</td>
+                  <td class="value">${visitorShotVolumeDisplay}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Points / Possession</td>
+                  <td class="value">${homePPPDisplay}</td>
+                  <td class="value">${visitorPPPDisplay}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        results.innerHTML = tableHTML;
+
+      } catch (err) {
+        console.error(err);
+        results.textContent = 'Error fetching stats: ' + err.message;
+      }
+    });
+  </script>
+</body>
+</html>
