@@ -111,6 +111,22 @@
         const visitorTsDisplay =
           data.visitor.tsPercent ?? (data.visitor.ts != null ? fmt(data.visitor.ts, 1) + '%' : '—');
 
+        // Offensive/Defensive/Net Rating displays (prefer string, else numeric)
+        const homeOffrtgDisplay =
+          data.home.offrtgStr ?? (data.home.offrtg != null ? fmt(data.home.offrtg, 1) : '—');
+        const visitorOffrtgDisplay =
+          data.visitor.offrtgStr ?? (data.visitor.offrtg != null ? fmt(data.visitor.offrtg, 1) : '—');
+
+        const homeDefrtgDisplay =
+          data.home.defrtgStr ?? (data.home.defrtg != null ? fmt(data.home.defrtg, 1) : '—');
+        const visitorDefrtgDisplay =
+          data.visitor.defrtgStr ?? (data.visitor.defrtg != null ? fmt(data.visitor.defrtg, 1) : '—');
+
+        const homeNetrtgDisplay =
+          data.home.netrtgStr ?? (data.home.netrtg != null ? fmt(data.home.netrtg, 1) : '—');
+        const visitorNetrtgDisplay =
+          data.visitor.netrtgStr ?? (data.visitor.netrtg != null ? fmt(data.visitor.netrtg, 1) : '—');
+
         // Free Throw values and FT %
         const homeFtLine = `${data.home.ftm ?? '—'}-${data.home.fta ?? '—'}`;
         const visitorFtLine = `${data.visitor.ftm ?? '—'}-${data.visitor.fta ?? '—'}`;
@@ -300,6 +316,24 @@
                   <td class="label">True Shooting %</td>
                   <td class="value">${visitorTsDisplay}</td>
                   <td class="value">${homeTsDisplay}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Off Rating</td>
+                  <td class="value">${visitorOffrtgDisplay}</td>
+                  <td class="value">${homeOffrtgDisplay}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Def Rating</td>
+                  <td class="value">${visitorDefrtgDisplay}</td>
+                  <td class="value">${homeDefrtgDisplay}</td>
+                </tr>
+
+                <tr>
+                  <td class="label">Net Rating</td>
+                  <td class="value">${visitorNetrtgDisplay}</td>
+                  <td class="value">${homeNetrtgDisplay}</td>
                 </tr>
 
                 <tr>
