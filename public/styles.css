@@ -3,16 +3,23 @@
 body {
   padding: 45px;
   font-family: 'Signika', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  /* center the main content horizontally */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 input {
-    width: 300px;
-    margin-bottom: 45px;
+  width: 300px;
+  margin-bottom: 45px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .stats-table-wrapper {
   max-width: 900px;
-  margin-top: 20px;
+  margin: 20px auto 0 auto;
   background: rgba(255, 255, 255, 0.03);
   padding: 20px;
   border-radius: 14px;
