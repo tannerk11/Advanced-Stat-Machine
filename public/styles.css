@@ -17,6 +17,42 @@ input {
   margin-right: auto;
 }
 
+/* Controls: input + button inline and equal height */
+.controls {
+  display: flex;
+  gap: 12px;
+  align-items: stretch; /* make children same height */
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.controls input {
+  width: 520px; /* prefer a wider input when space allows */
+  margin: 0; /* controlled by container */
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.12);
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.controls button {
+  margin: 0;
+  padding: 0 18px;
+  border-radius: 8px;
+  height: auto; /* allow flex to size */
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 640px) {
+  .controls { flex-direction: column; gap: 10px; }
+  .controls input { width: 100%; }
+  .controls button { width: 100%; }
+}
+
 /* Primary action button */
 #fetchBtn {
   background-color: #1976d2; /* pleasant blue */
