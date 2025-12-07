@@ -69,17 +69,17 @@ async function getGameStats(url) {
     homeOREB: textOrEmpty(q('.home .totals td:nth-last-of-type(9)')),
     visitorOREB: textOrEmpty(q('.visitor .totals td:nth-last-of-type(9)')),
 
-    homeAssists: textOrEmpty(q('.home .totals td:nth-last-of-type(7)')),
-    visitorAssists: textOrEmpty(q('.visitor .totals td:nth-last-of-type(7)')),
+    homeAssists: textOrEmpty(q('.home .totals td:nth-last-of-type(6)')),
+    visitorAssists: textOrEmpty(q('.visitor .totals td:nth-last-of-type(6)')),
 
-    homeSteals: textOrEmpty(q('.home .totals td:nth-last-of-type(6)')),
-    visitorSteals: textOrEmpty(q('.visitor .totals td:nth-last-of-type(6)')),
+    homeSteals: textOrEmpty(q('.home .totals td:nth-last-of-type(5)')),
+    visitorSteals: textOrEmpty(q('.visitor .totals td:nth-last-of-type(5)')),
 
-    homeBlocks: textOrEmpty(q('.home .totals td:nth-last-of-type(5)')),
-    visitorBlocks: textOrEmpty(q('.visitor .totals td:nth-last-of-type(5)')),
+    homeBlocks: textOrEmpty(q('.home .totals td:nth-of-type(10)')),
+    visitorBlocks: textOrEmpty(q('.visitor .totals td:nth-of-type(10)')),
     
-    homeFouls: textOrEmpty(q('.home .totals td:nth-last-of-type(4)')),
-    visitorFouls: textOrEmpty(q('.visitor .totals td:nth-last-of-type(4)')),
+    homeFouls: textOrEmpty(q('.home .totals td:nth-of-type(12)')),
+    visitorFouls: textOrEmpty(q('.visitor .totals td:nth-of-type(12)')),
 
   // Defensive rebounds (assumed to be next to offensive rebounds in totals)
     homeDREB: textOrEmpty(q('.home .totals td:nth-last-of-type(8)')),
@@ -191,6 +191,16 @@ async function getGameStats(url) {
   const homeShotVolumeStr = homeShotVolume != null ? `${homeShotVolume.toFixed(3)}` : '—';
   const visitorShotVolumeStr = visitorShotVolume != null ? `${visitorShotVolume.toFixed(3)}` : '—';
 
+  // True Shooting % (TS%) = Points / (2 * (FGA + 0.475 * FTA)) -> expressed as percent
+  const homeTsDenom = (homefga + 0.475 * homefta);
+  const visitorTsDenom = (visitorfga + 0.475 * visitorfta);
+  const homeTs = homeTsDenom ? (homePoints / (2 * homeTsDenom)) * 100 : null;
+  const visitorTs = visitorTsDenom ? (visitorPoints / (2 * visitorTsDenom)) * 100 : null;
+  const homeTsNum = homeTs != null ? Number(homeTs.toFixed(2)) : null;
+  const visitorTsNum = visitorTs != null ? Number(visitorTs.toFixed(2)) : null;
+  const homeTsStr = homeTs != null ? `${homeTs.toFixed(2)}%` : '—';
+  const visitorTsStr = visitorTs != null ? `${visitorTs.toFixed(2)}%` : '—';
+
   // Return a stable, frontend-friendly shape. Keep old keys but add a few helpful extras.
   return {
     homeTeam,
@@ -225,6 +235,8 @@ async function getGameStats(url) {
       threePointPercentRaw: home3PPct || null,
       efg: homeEfg != null ? Number(homeEfg.toFixed(2)) : null,
       efgPercent: homeEfgStr,
+  ts: homeTsNum,
+  tsPercent: homeTsStr,
       assists: homeAssists != null ? Number(homeAssists) : null,
       steals: homeSteals != null ? Number(homeSteals) : null,
       blocks: homeBlocks != null ? Number(homeBlocks) : null,
@@ -260,6 +272,8 @@ async function getGameStats(url) {
       threePointPercentRaw: visitor3PPct || null,
       efg: visitorEfg != null ? Number(visitorEfg.toFixed(2)) : null,
       efgPercent: visitorEfgStr,
+  ts: visitorTsNum,
+  tsPercent: visitorTsStr,
       assists: visitorAssists != null ? Number(visitorAssists) : null,
       steals: visitorSteals != null ? Number(visitorSteals) : null,
       blocks: visitorBlocks != null ? Number(visitorBlocks) : null,
