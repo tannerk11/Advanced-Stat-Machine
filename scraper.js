@@ -137,6 +137,34 @@ async function getGameStats(url) {
   const homeppp = homePossessions ? (homePoints / homePossessions) : 0;
   const visitorppp = visitorPossessions ? (visitorPoints / visitorPossessions) : 0;
 
+  // Offensive/Defensive Ratings (per 100 possessions)
+  // offrtg = 100 * (points / possessions)
+  // defrtg = 100 * (opponent points / opponent possessions)
+  const homeOffrtg = homePossessions ? (100 * (homePoints / homePossessions)) : null;
+  const visitorOffrtg = visitorPossessions ? (100 * (visitorPoints / visitorPossessions)) : null;
+
+  const homeDefrtg = visitorPossessions ? (100 * (visitorPoints / visitorPossessions)) : null;
+  const visitorDefrtg = homePossessions ? (100 * (homePoints / homePossessions)) : null;
+
+  const homeNetrtg = (homeOffrtg != null && homeDefrtg != null) ? (homeOffrtg - homeDefrtg) : null;
+  const visitorNetrtg = (visitorOffrtg != null && visitorDefrtg != null) ? (visitorOffrtg - visitorDefrtg) : null;
+
+  const homeOffrtgNum = homeOffrtg != null ? Number(homeOffrtg.toFixed(1)) : null;
+  const visitorOffrtgNum = visitorOffrtg != null ? Number(visitorOffrtg.toFixed(1)) : null;
+
+  const homeDefrtgNum = homeDefrtg != null ? Number(homeDefrtg.toFixed(1)) : null;
+  const visitorDefrtgNum = visitorDefrtg != null ? Number(visitorDefrtg.toFixed(1)) : null;
+
+  const homeNetrtgNum = homeNetrtg != null ? Number(homeNetrtg.toFixed(1)) : null;
+  const visitorNetrtgNum = visitorNetrtg != null ? Number(visitorNetrtg.toFixed(1)) : null;
+
+  const homeOffrtgStr = homeOffrtgNum != null ? `${homeOffrtgNum}` : '—';
+  const visitorOffrtgStr = visitorOffrtgNum != null ? `${visitorOffrtgNum}` : '—';
+  const homeDefrtgStr = homeDefrtgNum != null ? `${homeDefrtgNum}` : '—';
+  const visitorDefrtgStr = visitorDefrtgNum != null ? `${visitorDefrtgNum}` : '—';
+  const homeNetrtgStr = homeNetrtgNum != null ? `${homeNetrtgNum}` : '—';
+  const visitorNetrtgStr = visitorNetrtgNum != null ? `${visitorNetrtgNum}` : '—';
+
   // Turnover percentage: turnovers / possessions (as percent)
   const homeTurnoverPct = homePossessions ? (homeTurnovers / homePossessions) * 100 : null;
   const visitorTurnoverPct = visitorPossessions ? (visitorTurnovers / visitorPossessions) * 100 : null;
@@ -239,6 +267,12 @@ async function getGameStats(url) {
       efgPercent: homeEfgStr,
       ts: homeTsNum,
       tsPercent: homeTsStr,
+  offrtg: homeOffrtgNum,
+  offrtgStr: homeOffrtgStr,
+  defrtg: homeDefrtgNum,
+  defrtgStr: homeDefrtgStr,
+  netrtg: homeNetrtgNum,
+  netrtgStr: homeNetrtgStr,
       assists: homeAssists != null ? Number(homeAssists) : null,
       steals: homeSteals != null ? Number(homeSteals) : null,
       blocks: homeBlocks != null ? Number(homeBlocks) : null,
@@ -276,6 +310,12 @@ async function getGameStats(url) {
       efgPercent: visitorEfgStr,
       ts: visitorTsNum,
       tsPercent: visitorTsStr,
+  offrtg: visitorOffrtgNum,
+  offrtgStr: visitorOffrtgStr,
+  defrtg: visitorDefrtgNum,
+  defrtgStr: visitorDefrtgStr,
+  netrtg: visitorNetrtgNum,
+  netrtgStr: visitorNetrtgStr,
       assists: visitorAssists != null ? Number(visitorAssists) : null,
       steals: visitorSteals != null ? Number(visitorSteals) : null,
       blocks: visitorBlocks != null ? Number(visitorBlocks) : null,
