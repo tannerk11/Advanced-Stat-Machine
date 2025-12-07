@@ -104,7 +104,6 @@ input {
   color: #000000;
   /* slightly smaller header text to match the adjusted table size */
   font-size: calc(1.05rem - 2px);
-  padding-left: 15px;
 }
 
 .stats-table tbody td {
@@ -121,6 +120,7 @@ input {
   font-weight: 600;
   color: #000000;
   width: 40%;
+  padding-left: 15px;
 }
 
 .stats-table tbody td.value {
