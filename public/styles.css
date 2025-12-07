@@ -22,7 +22,8 @@ input {
 .stats-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 1rem;
+  /* make table text ~2px smaller than the page base */
+  font-size: calc(1rem - 2px);
 }
 
 .stats-table thead th {
@@ -30,12 +31,18 @@ input {
   padding-bottom: 12px;
   font-weight: 700;
   color: #000000;
-  font-size: 1.05rem;
+  /* slightly smaller header text to match the adjusted table size */
+  font-size: calc(1.05rem - 2px);
 }
 
 .stats-table tbody td {
   padding: 10px 0;
   border-top: 1px solid #000000;
+}
+
+/* light zebra striping for readability */
+.stats-table tbody tr:nth-child(even) td {
+  background-color: #f7f7f8;
 }
 
 .stats-table tbody td.label {

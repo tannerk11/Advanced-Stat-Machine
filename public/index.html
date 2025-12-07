@@ -73,12 +73,12 @@
 
         const homeFGPct =
           data.home.fgm != null && data.home.fga
-            ? fmt((data.home.fgm / data.home.fga) * 100, 1) + '%'
+            ? fmt((data.home.fgm / data.home.fga) * 100, 2) + '%'
             : '—';
 
         const visitorFGPct =
           data.visitor.fgm != null && data.visitor.fga
-            ? fmt((data.visitor.fgm / data.visitor.fga) * 100, 1) + '%'
+            ? fmt((data.visitor.fgm / data.visitor.fga) * 100, 2) + '%'
             : '—';
 
         // EFG % (prefer string field, fall back to numeric)
@@ -88,12 +88,7 @@
         const visitorEfgPct =
           data.visitor.efgPercent ?? (data.visitor.efg != null ? fmt(data.visitor.efg, 2) + '%' : '—');
 
-        // FG% display (prefer string field exposed by API, else compute)
-        const homeFgPctDisplay =
-          data.home.fgPercentStr ?? (data.home.fgPercent != null ? fmt(data.home.fgPercent, 2) + '%' : '—');
-
-        const visitorFgPctDisplay =
-          data.visitor.fgPercentStr ?? (data.visitor.fgPercent != null ? fmt(data.visitor.fgPercent, 2) + '%' : '—');
+        // (Removed redundant FG% display - using Field Goal % above with two decimals)
 
         // FG vs EFG difference (prefer string field, fall back to numeric difference)
         const homeFgEfgDiffDisplay =
@@ -184,117 +179,113 @@
               <thead>
                 <tr>
                   <th></th>
-                  <th>${data.homeTeam}</th>
                   <th>${data.visitorTeam}</th>
+                  <th>${data.homeTeam}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td class="label">Points</td>
-                  <td class="value">${data.home.pts}</td>
                   <td class="value">${data.visitor.pts}</td>
+                  <td class="value">${data.home.pts}</td>
                 </tr>
 
                 <tr>
                   <td class="label">Field Goal</td>
-                  <td class="value">${data.home.fgm}-${data.home.fga}</td>
                   <td class="value">${data.visitor.fgm}-${data.visitor.fga}</td>
+                  <td class="value">${data.home.fgm}-${data.home.fga}</td>
                 </tr>
 
                 <tr>
                   <td class="label">Field Goal %</td>
-                  <td class="value">${homeFGPct}</td>
                   <td class="value">${visitorFGPct}</td>
+                  <td class="value">${homeFGPct}</td>
                 </tr>
 
                 <tr>
                   <td class="label">EFG %</td>
-                  <td class="value">${homeEfgPct}</td>
                   <td class="value">${visitorEfgPct}</td>
+                  <td class="value">${homeEfgPct}</td>
                 </tr>
 
-                <tr>
-                  <td class="label">FG %</td>
-                  <td class="value">${homeFgPctDisplay}</td>
-                  <td class="value">${visitorFgPctDisplay}</td>
-                </tr>
+                <!-- Removed duplicate FG% row (Field Goal % above displays FG% with two decimals) -->
 
                 <tr>
                   <td class="label">FG — EFG</td>
-                  <td class="value">${homeFgEfgDiffDisplay}</td>
                   <td class="value">${visitorFgEfgDiffDisplay}</td>
+                  <td class="value">${homeFgEfgDiffDisplay}</td>
                 </tr>
 
                 <tr>
                   <td class="label">3 Point %</td>
-                  <td class="value">${data.home.threePointPercent}</td>
                   <td class="value">${data.visitor.threePointPercent}</td>
+                  <td class="value">${data.home.threePointPercent}</td>
                 </tr>
 
                 <tr>
                   <td class="label">3P Made-Att</td>
-                  <td class="value">${home3PMLine}</td>
                   <td class="value">${visitor3PMLine}</td>
+                  <td class="value">${home3PMLine}</td>
                 </tr>
 
                 <tr>
                   <td class="label">Free Throw</td>
-                  <td class="value">${data.home.ftm}-${data.home.fta}</td>
                   <td class="value">${data.visitor.ftm}-${data.visitor.fta}</td>
+                  <td class="value">${data.home.ftm}-${data.home.fta}</td>
                 </tr>
 
                 <tr>
                   <td class="label">FT Rate (FTA / FGA)</td>
-                  <td class="value">${homeFtRateDisplay}</td>
                   <td class="value">${visitorFtRateDisplay}</td>
+                  <td class="value">${homeFtRateDisplay}</td>
                 </tr>
 
                 <tr>
                   <td class="label">Off Reb</td>
-                  <td class="value">${data.home.oreb}</td>
                   <td class="value">${data.visitor.oreb}</td>
+                  <td class="value">${data.home.oreb}</td>
                 </tr>
 
                 <tr>
                   <td class="label">Def Reb</td>
-                  <td class="value">${homeDrebDisplay}</td>
                   <td class="value">${visitorDrebDisplay}</td>
+                  <td class="value">${homeDrebDisplay}</td>
                 </tr>
 
                 <tr>
                   <td class="label">Offensive Rebound %</td>
-                  <td class="value">${homeOrPctDisplay}</td>
                   <td class="value">${visitorOrPctDisplay}</td>
+                  <td class="value">${homeOrPctDisplay}</td>
                 </tr>
 
                 <tr>
                   <td class="label">Turnovers</td>
-                  <td class="value">${data.home.turnovers}</td>
                   <td class="value">${data.visitor.turnovers}</td>
+                  <td class="value">${data.home.turnovers}</td>
                 </tr>
 
                 <tr>
                   <td class="label">Turnover %</td>
-                  <td class="value">${homeTurnoverPct}</td>
                   <td class="value">${visitorTurnoverPct}</td>
+                  <td class="value">${homeTurnoverPct}</td>
                 </tr>
 
                 <tr>
                   <td class="label">Possessions</td>
-                  <td class="value">${homePossDisplay}</td>
                   <td class="value">${visitorPossDisplay}</td>
+                  <td class="value">${homePossDisplay}</td>
                 </tr>
 
                 <tr>
                   <td class="label">Shot Volume (SV)</td>
-                  <td class="value">${homeShotVolumeDisplay}</td>
                   <td class="value">${visitorShotVolumeDisplay}</td>
+                  <td class="value">${homeShotVolumeDisplay}</td>
                 </tr>
 
                 <tr>
                   <td class="label">Points / Possession</td>
-                  <td class="value">${homePPPDisplay}</td>
                   <td class="value">${visitorPPPDisplay}</td>
+                  <td class="value">${homePPPDisplay}</td>
                 </tr>
               </tbody>
             </table>
