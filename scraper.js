@@ -145,8 +145,9 @@ async function getGameStats(url) {
   const homeEfg = homefga ? ((homefgm + 0.5 * home3PM) / homefga) * 100 : null;
   const visitorEfg = visitorfga ? ((visitorfgm + 0.5 * visitor3PM) / visitorfga) * 100 : null;
 
-  const homeEfgStr = homeEfg != null ? `${homeEfg.toFixed(2)}%` : '—';
-  const visitorEfgStr = visitorEfg != null ? `${visitorEfg.toFixed(2)}%` : '—';
+  // format percents with a single decimal
+  const homeEfgStr = homeEfg != null ? `${homeEfg.toFixed(1)}%` : '—';
+  const visitorEfgStr = visitorEfg != null ? `${visitorEfg.toFixed(1)}%` : '—';
 
   // Free Throw Rate = FTA / FGA
   const homeFtRate = homefga ? (homefta / homefga) : null;
@@ -167,39 +168,40 @@ async function getGameStats(url) {
   const homeFgEfgDiff = (homeEfg != null && homeFgPct != null) ? (homeEfg - homeFgPct) : null;
   const visitorFgEfgDiff = (visitorEfg != null && visitorFgPct != null) ? (visitorEfg - visitorFgPct) : null;
 
-  const homeFgPctStr = homeFgPct != null ? `${homeFgPct.toFixed(2)}%` : '—';
-  const visitorFgPctStr = visitorFgPct != null ? `${visitorFgPct.toFixed(2)}%` : '—';
+  const homeFgPctStr = homeFgPct != null ? `${homeFgPct.toFixed(1)}%` : '—';
+  const visitorFgPctStr = visitorFgPct != null ? `${visitorFgPct.toFixed(1)}%` : '—';
 
-  const homeFgEfgDiffStr = homeFgEfgDiff != null ? `${homeFgEfgDiff.toFixed(2)}%` : '—';
-  const visitorFgEfgDiffStr = visitorFgEfgDiff != null ? `${visitorFgEfgDiff.toFixed(2)}%` : '—';
+  const homeFgEfgDiffStr = homeFgEfgDiff != null ? `${homeFgEfgDiff.toFixed(1)}%` : '—';
+  const visitorFgEfgDiffStr = visitorFgEfgDiff != null ? `${visitorFgEfgDiff.toFixed(1)}%` : '—';
 
   // Offensive Rebound % (OR%) = OREB / (OREB + opponent DREB)
   // opponent DREB is the other team's defensive rebounds
   const homeOrPct = (homeOREB + visitorDREB) ? (homeOREB / (homeOREB + visitorDREB)) * 100 : null;
   const visitorOrPct = (visitorOREB + homeDREB) ? (visitorOREB / (visitorOREB + homeDREB)) * 100 : null;
 
-  const homeOrPctStr = homeOrPct != null ? `${homeOrPct.toFixed(2)}%` : '—';
-  const visitorOrPctStr = visitorOrPct != null ? `${visitorOrPct.toFixed(2)}%` : '—';
+  const homeOrPctStr = homeOrPct != null ? `${homeOrPct.toFixed(1)}%` : '—';
+  const visitorOrPctStr = visitorOrPct != null ? `${visitorOrPct.toFixed(1)}%` : '—';
 
   // Shot Volume: (FGA + 0.475 * FTA) / Possessions
   const homeRawShot = (homefga + 0.475 * homefta);
   const visitorRawShot = (visitorfga + 0.475 * visitorfta);
   const homeShotVolume = homePossessions ? (homeRawShot / homePossessions) : null;
   const visitorShotVolume = visitorPossessions ? (visitorRawShot / visitorPossessions) : null;
-  const homeShotVolumeNum = homeShotVolume != null ? Number(homeShotVolume.toFixed(3)) : null;
-  const visitorShotVolumeNum = visitorShotVolume != null ? Number(visitorShotVolume.toFixed(3)) : null;
-  const homeShotVolumeStr = homeShotVolume != null ? `${homeShotVolume.toFixed(3)}` : '—';
-  const visitorShotVolumeStr = visitorShotVolume != null ? `${visitorShotVolume.toFixed(3)}` : '—';
+  // expose shot volume as a percentage (one decimal)
+  const homeShotVolumeNum = homeShotVolume != null ? Number((homeShotVolume * 100).toFixed(1)) : null;
+  const visitorShotVolumeNum = visitorShotVolume != null ? Number((visitorShotVolume * 100).toFixed(1)) : null;
+  const homeShotVolumeStr = homeShotVolume != null ? `${(homeShotVolume * 100).toFixed(1)}%` : '—';
+  const visitorShotVolumeStr = visitorShotVolume != null ? `${(visitorShotVolume * 100).toFixed(1)}%` : '—';
 
   // True Shooting % (TS%) = Points / (2 * (FGA + 0.475 * FTA)) -> expressed as percent
   const homeTsDenom = (homefga + 0.475 * homefta);
   const visitorTsDenom = (visitorfga + 0.475 * visitorfta);
   const homeTs = homeTsDenom ? (homePoints / (2 * homeTsDenom)) * 100 : null;
   const visitorTs = visitorTsDenom ? (visitorPoints / (2 * visitorTsDenom)) * 100 : null;
-  const homeTsNum = homeTs != null ? Number(homeTs.toFixed(2)) : null;
-  const visitorTsNum = visitorTs != null ? Number(visitorTs.toFixed(2)) : null;
-  const homeTsStr = homeTs != null ? `${homeTs.toFixed(2)}%` : '—';
-  const visitorTsStr = visitorTs != null ? `${visitorTs.toFixed(2)}%` : '—';
+  const homeTsNum = homeTs != null ? Number(homeTs.toFixed(1)) : null;
+  const visitorTsNum = visitorTs != null ? Number(visitorTs.toFixed(1)) : null;
+  const homeTsStr = homeTs != null ? `${homeTs.toFixed(1)}%` : '—';
+  const visitorTsStr = visitorTs != null ? `${visitorTs.toFixed(1)}%` : '—';
 
   // Return a stable, frontend-friendly shape. Keep old keys but add a few helpful extras.
   return {
@@ -218,14 +220,14 @@ async function getGameStats(url) {
       threePointPercent: home3PPct || homeFTPct || null,
       possessions: homePossessions,
       ppp: Number(homeppp.toFixed(3)),
-      turnoverPercent: homeTurnoverPct != null ? Number(homeTurnoverPct.toFixed(2)) : null,
-      turnoverPercentStr: homeTurnoverPct != null ? `${homeTurnoverPct.toFixed(2)}%` : '—',
-      offensiveReboundPercent: homeOrPct != null ? Number(homeOrPct.toFixed(2)) : null,
-      offensiveReboundPercentStr: homeOrPct != null ? homeOrPctStr : '—',
-      fgPercent: homeFgPct != null ? Number(homeFgPct.toFixed(2)) : null,
-      fgPercentStr: homeFgPct != null ? homeFgPctStr : '—',
-      fgEfgDiff: homeFgEfgDiff != null ? Number(homeFgEfgDiff.toFixed(2)) : null,
-      fgEfgDiffStr: homeFgEfgDiff != null ? homeFgEfgDiffStr : '—',
+  turnoverPercent: homeTurnoverPct != null ? Number(homeTurnoverPct.toFixed(1)) : null,
+  turnoverPercentStr: homeTurnoverPct != null ? `${homeTurnoverPct.toFixed(1)}%` : '—',
+  offensiveReboundPercent: homeOrPct != null ? Number(homeOrPct.toFixed(1)) : null,
+  offensiveReboundPercentStr: homeOrPct != null ? homeOrPctStr : '—',
+  fgPercent: homeFgPct != null ? Number(homeFgPct.toFixed(1)) : null,
+  fgPercentStr: homeFgPct != null ? homeFgPctStr : '—',
+  fgEfgDiff: homeFgEfgDiff != null ? Number(homeFgEfgDiff.toFixed(1)) : null,
+  fgEfgDiffStr: homeFgEfgDiff != null ? homeFgEfgDiffStr : '—',
       ftRate: homeFtRateNum,
       ftRateStr: homeFtRateStr,
       shotVolume: homeShotVolumeNum,
@@ -235,8 +237,8 @@ async function getGameStats(url) {
       threePointPercentRaw: home3PPct || null,
       efg: homeEfg != null ? Number(homeEfg.toFixed(2)) : null,
       efgPercent: homeEfgStr,
-  ts: homeTsNum,
-  tsPercent: homeTsStr,
+      ts: homeTsNum,
+      tsPercent: homeTsStr,
       assists: homeAssists != null ? Number(homeAssists) : null,
       steals: homeSteals != null ? Number(homeSteals) : null,
       blocks: homeBlocks != null ? Number(homeBlocks) : null,
@@ -255,14 +257,14 @@ async function getGameStats(url) {
       threePointPercent: visitor3PPct || visitorFTPct || null,
       possessions: visitorPossessions,
       ppp: Number(visitorppp.toFixed(3)),
-      turnoverPercent: visitorTurnoverPct != null ? Number(visitorTurnoverPct.toFixed(2)) : null,
-      turnoverPercentStr: visitorTurnoverPct != null ? `${visitorTurnoverPct.toFixed(2)}%` : '—',
-      offensiveReboundPercent: visitorOrPct != null ? Number(visitorOrPct.toFixed(2)) : null,
-      offensiveReboundPercentStr: visitorOrPct != null ? visitorOrPctStr : '—',
-      fgPercent: visitorFgPct != null ? Number(visitorFgPct.toFixed(2)) : null,
-      fgPercentStr: visitorFgPct != null ? visitorFgPctStr : '—',
-      fgEfgDiff: visitorFgEfgDiff != null ? Number(visitorFgEfgDiff.toFixed(2)) : null,
-      fgEfgDiffStr: visitorFgEfgDiff != null ? visitorFgEfgDiffStr : '—',
+  turnoverPercent: visitorTurnoverPct != null ? Number(visitorTurnoverPct.toFixed(1)) : null,
+  turnoverPercentStr: visitorTurnoverPct != null ? `${visitorTurnoverPct.toFixed(1)}%` : '—',
+  offensiveReboundPercent: visitorOrPct != null ? Number(visitorOrPct.toFixed(1)) : null,
+  offensiveReboundPercentStr: visitorOrPct != null ? visitorOrPctStr : '—',
+  fgPercent: visitorFgPct != null ? Number(visitorFgPct.toFixed(1)) : null,
+  fgPercentStr: visitorFgPct != null ? visitorFgPctStr : '—',
+  fgEfgDiff: visitorFgEfgDiff != null ? Number(visitorFgEfgDiff.toFixed(1)) : null,
+  fgEfgDiffStr: visitorFgEfgDiff != null ? visitorFgEfgDiffStr : '—',
       ftRate: visitorFtRateNum,
       ftRateStr: visitorFtRateStr,
       shotVolume: visitorShotVolumeNum,
@@ -272,8 +274,8 @@ async function getGameStats(url) {
       threePointPercentRaw: visitor3PPct || null,
       efg: visitorEfg != null ? Number(visitorEfg.toFixed(2)) : null,
       efgPercent: visitorEfgStr,
-  ts: visitorTsNum,
-  tsPercent: visitorTsStr,
+      ts: visitorTsNum,
+      tsPercent: visitorTsStr,
       assists: visitorAssists != null ? Number(visitorAssists) : null,
       steals: visitorSteals != null ? Number(visitorSteals) : null,
       blocks: visitorBlocks != null ? Number(visitorBlocks) : null,
